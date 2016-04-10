@@ -1,0 +1,15 @@
+{% extends "main.html" %}
+
+{% block toppane %}
+<h4 class="card-title">This week:</h4>
+<div style="flex-grow: 1;">
+  {{ chart_current|safe }}
+</div>
+{% endblock %}
+
+{% block bottompane %}
+<h4 class="card-title">This week:</h4>
+<div style="flex-grow: 1; display:relative;">
+  {{ chart_last|safe }}
+</div>
+{% endblock %}

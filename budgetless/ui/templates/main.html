@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+<script src="https://cdn.plot.ly/plotly-latest.min.js" > </script>
+<link rel="stylesheet" href="static/main.css"/>
+
+</head>
+
+<body>
+
+<div id='content'>
+	<div id='leftpane'>
+		<h1>Budget<i>Less</i></h1>
+		<div id='month_list'>
+
+		</div>
+		<div>
+			Settings
+		</div>
+	</div>
+
+	<div id='body'>
+
+		<div id='toppane' class='pane toppane'>
+	    <div class="card card-block fill flexbox">
+				<div id='toppane_inner'>
+		    	{% block toppane %}
+					{% endblock %}'
+				</div>
+	    </div>
+		</div>
+
+		<div id='botpane' class='pane botpane'>
+	    <div class="card card-block fill flexbox">
+				<div id="botpane_inner">
+					{% block bottompane %}
+					{% endblock %}
+				</div>
+	    </div>
+	  </div>
+	</div>
+</div>
+
+<script src="https://code.jquery.com/jquery-2.2.2.min.js"></script>
+<script src="http://malsup.github.io/jquery.blockUI.js"></script>
+<script src='static/main.js'></script>
+<script>
+$( document ).ready(function() {
+	showYearSummary("{{ year }}");
+	showWeekChart("{{ date }}");
+});
+</script>
+</body>
+
+</html>

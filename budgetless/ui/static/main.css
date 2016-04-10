@@ -1,0 +1,224 @@
+:root {
+	--navbar-width: 200px;
+}
+
+body {
+	background: #ddd;
+	font-family: sans-serif;
+}
+
+#leftpane {
+	display: flex;
+	width: 180px;
+	overflow-y: auto;
+	padding: 10px;
+	flex-direction: column;
+}
+
+#leftpane .month {
+	padding: 10px;
+}
+
+h1 {
+	text-align: center;
+}
+
+.this_week {
+	position: absolute;
+	top: 0px;
+	left: 200px;
+	right: 0px;
+	height: 50%;
+	background: #aaa;
+	padding: 0px;
+}
+
+.last_week {
+	position: absolute;
+	bottom: 0px;
+	left: 200px;
+	right: 0px;
+	height: 50%;
+	background: #aaa;
+}
+
+.card {
+	background: #fff;
+	border: 1px solid #aaa;
+	border-radius: 5px;
+	box-shadow: 0px 3px 3px rgba(0,0,0,0.3);
+	padding: 4px;
+	margin: 10px;
+}
+
+.fill {
+	position: absolute;
+	bottom: 0px;
+	right: 0px;
+	left: 0px;
+	top: 0px;
+}
+
+.flexbox {
+	display: flex;
+	flex-direction: column;
+}
+
+.relative {
+	position: relative;
+}
+
+.toppane {
+	flex-grow: 1;
+	position: relative;
+}
+
+.botpane {
+	flex-grow: 1;
+	position: relative;
+}
+
+#content {
+	display: flex;
+	position: absolute;
+	top: 0px;
+	bottom:0px;
+	left: 0px;
+	right: 0px;
+}
+
+#body {
+	display: flex;
+	flex-direction: column;
+	flex-grow: 1;
+}
+
+#toppane_inner , #botpane_inner {
+	position: relative;
+	overflow: auto;
+	height: 100%;
+}
+
+#month_list {
+	flex-grow: 1;
+}
+
+.flexcontainer {
+	background: rgba(0,0,0,1);
+}
+
+.selector {
+	display: flex;
+	background: #fff;
+	border: 1px solid #aaa;
+	border-radius: 5px;
+	box-shadow: 0px 3px 3px rgba(0,0,0,0.3);
+}
+.selector .value {
+	flex-grow: 1;
+	padding: 10px;
+	text-align: center;
+	display: block;
+}
+.selector .left {
+	padding: 10px;
+	border-right: 1px solid #aaa;
+}
+.selector .right {
+	padding: 10px;
+	border-left: 1px solid #aaa;
+}
+
+.month {
+	display: flex;
+	margin: 5px;
+}
+.month:hover {
+	border-radius: 5px;
+	background: #aaa;
+}
+.month .name {
+	flex-grow: 1;
+}
+.month_box {
+	border: 1px solid #000;
+	height: 13px;
+	width: 13px;
+	display: inline-block;
+	background: #f00;
+	border-radius: 3px;
+}
+
+.surplus {
+	background: #00f;
+}
+
+.future {
+	background: none;
+}
+
+.transaction {
+	padding: 10px;
+	display: flex;
+}
+
+.offbudget {
+	color: #aaa;
+	font-style: italic;
+}
+
+.transaction:hover {
+	background: #eee;
+	transition: background 0.3s;
+	border-radius: 3px;
+}
+
+.pending .description::after {
+	content: " [PENDING]";
+	color: #aaa;
+	font-style: italic;
+}
+
+.transaction .amount {
+	font-weight: bold;
+	margin-right: 10px;
+}
+
+.statii a {
+	cursor: pointer;
+}
+
+.selector a {
+	cursor: pointer;
+}
+
+.transaction input.notes {
+	border: 0px;
+	border-bottom: 1px solid transparent;
+	margin: -10px;
+	margin-left: 10px;
+	margin-right: 10px;
+	padding: 4px;
+	flex-grow: 1;
+	font-family: inherit;
+	font-size: inherit;
+	font-style: inherit;
+	color: inherit;
+	background: inherit;
+}
+
+.transaction input.notes:hover {
+	border-bottom: 1px solid #aaa;
+	background: rgba(255,246,182,0.4);
+}
+
+.transaction .resetoffbudget {
+	margin-left: 10px;
+}
+
+.panel-header {
+	background: #aaa;
+	padding: 5px;
+	border-radius: 3px;
+	margin-bottom: 0px;
+}

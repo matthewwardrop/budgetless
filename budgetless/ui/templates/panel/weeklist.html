@@ -1,0 +1,16 @@
+<div class='selector'>
+	<a class='left' onclick='showYearSummary({{year-1}})'> < </a>
+	<span class='value'> {{year}} </span>
+	<a class='right' onclick='showYearSummary({{year+1}})'> > </a>
+</div>
+
+{% for month in months %}
+<div class='month'>
+	<span class='name'>{{ month[:3] }}</span>
+	<div class='statii'>
+	{% for status in week_status[loop.index] %}
+		<a onclick='showWeekChart("{{ status.start.strftime('%Y-%m-%d') }}");'><div class='month_box {% if not status.past %} future {%elif status.surplus %} surplus {% endif %}'></div></a>
+	{% endfor %}
+</div>
+</div>
+{% endfor %}
