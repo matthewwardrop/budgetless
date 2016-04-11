@@ -19,6 +19,9 @@ parser_sync = subparsers.add_parser('sync')
 parser_run = subparsers.add_parser('run')
 parser_run.add_argument('--debug', dest='debug', action='store_const', const=True, default=False)
 
+parser_deploy = subparsers.add_parser('deploy')
+parser_deploy.add_argument('--debug', dest='debug', action='store_const', const=True, default=False)
+
 args = parser.parse_args()
 
 b = budgetless.Budget(args.database)
@@ -33,3 +36,8 @@ if args.action == 'run':
 	import budgetless.ui as ui
 	app = ui.get_app_for_budget(b)
 	app.run(debug=args.debug)
+
+if args.action == 'deploy':
+	import budgetless.ui as ui
+	app = ui.get_app_for_budget(b)
+	app.run(host='0.0.0.0', debug=args.debug)
