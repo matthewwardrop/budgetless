@@ -33,11 +33,7 @@ if args.action == 'sync':
 	b.sync()
 
 if args.action == 'run':
-	import budgetless.ui as ui
-	app = ui.get_app_for_budget(b)
-	app.run(debug=args.debug)
+	b.wsgi_app.run(debug=args.debug)
 
 if args.action == 'deploy':
-	import budgetless.ui as ui
-	app = ui.get_app_for_budget(b)
-	app.run(host='0.0.0.0', debug=args.debug)
+	b.wsgi_app.run(host='0.0.0.0', debug=args.debug)

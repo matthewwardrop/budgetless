@@ -30,12 +30,25 @@ MONTHS = [
 
 class Budget(object):
 
-    def __init__(self, database='budget.db', debug=True):
+    def __init__(self, database='budgetless.db', debug=True):
         self.debug = debug
 
         self.database = database
         if self.database.find(':') == -1:
             self.database = 'sqlite:///' + self.database
+
+    @property
+    def wsgi_app(self):
+        try:
+            return self.__wsgi_app
+        except:
+            from flask import Flask
+            from .ui import blueprint
+
+            app = Flask('budgetless')
+            app.register_blueprint(blueprint)
+            app.config['budget'] = self
+            return app
 
     def initialise(self, filename=None, config=None, sources=None, allocations=None):
         env = {'config': config, 'sources': sources, 'allocations': allocations}
