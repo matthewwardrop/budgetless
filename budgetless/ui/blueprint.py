@@ -53,8 +53,8 @@ def panel(panel):
 
 
 @blueprint.route('/', defaults={'date': None, 'weekstart': 2})
-@blueprint.route('/<date>', defaults={'weekstart': 2})
-@blueprint.route('/<date>/<int:weekstart>')
+@blueprint.route('/chart/<date>', defaults={'weekstart': 2})
+@blueprint.route('/chart/<date>/<int:weekstart>')
 def main(date, weekstart):
 
     if date is None:

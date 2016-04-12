@@ -42,13 +42,9 @@ class Budget(object):
         try:
             return self.__wsgi_app
         except:
-            from flask import Flask
-            from .ui import blueprint
-
-            app = Flask('budgetless')
-            app.register_blueprint(blueprint)
-            app.config['budget'] = self
-            return app
+            from .ui import get_app_for_budget
+            self.__wsgi_app = get_app_for_budget(self)
+            return self.__wsgi_app
 
     def initialise(self, filename=None, config=None, sources=None, allocations=None):
         env = {'config': config, 'sources': sources, 'allocations': allocations}
