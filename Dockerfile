@@ -1,12 +1,23 @@
 FROM codekoala/arch:latest
-ENV BUDGETLESS_DATA=/data/budgetless.db
-RUN pacman --noconfirm -Syu
-RUN pacman --noconfirm -S python-flask python-pip python-pandas python-numpy python-sqlalchemy python-matplotlib gcc cython python-sympy cronie
-RUN echo "budgetless ${BUDGETLESS_DATA} sync" > /etc/cron.hourly/budgetless_update
-RUN chmod +x /etc/cron.hourly/budgetless_update
 MAINTAINER Matthew Wardrop <mister.wardrop@gmail.com>
+
+# Setup environment
+ENV BUDGETLESS_DB=/data/budgetless.db
 EXPOSE 5000
+
+# Install dependencies
+RUN pacman --noconfirm -Syu
+RUN pacman --noconfirm -S python-flask python-pip python-pandas python-numpy \
+	python-sqlalchemy python-matplotlib gcc cython python-sympy fcron
 RUN pip install gunicorn mintapi plotly parampy
 RUN pip install git+https://github.com/matthewwardrop/budgetless.git
-RUN mkdir -p $(dirname $BUDGETLESS_DATA)
-CMD crond && budgetless ${BUDGETLESS_DATA} deploy
+
+# Set up automatic budget updates
+RUN printf "#!/bin/sh\nbudgetless ${BUDGETLESS_DB} sync" > /etc/cron.hourly/budgetless_update
+RUN chmod +x /etc/cron.hourly/budgetless_update
+
+# Ensure that data directory exists
+RUN mkdir -p $(dirname $BUDGETLESS_DB)
+
+# Run cron daemon and deploy budgetless server
+CMD fcron && budgetless ${BUDGETLESS_DB} deploy
