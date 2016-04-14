@@ -15,7 +15,7 @@ tbl_txn = Table('transactions', db_metadata,
 
                 Column('tracking_id', String),
                 Column('date_seen', Date, nullable=False,
-                       default=datetime.date.today),
+                       default=datetime.datetime.utcnow),
 
                 Column('amount', Integer, nullable=False),
                 Column('currency', String, default='USD'),

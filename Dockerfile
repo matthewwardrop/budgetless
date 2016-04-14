@@ -4,6 +4,7 @@ MAINTAINER Matthew Wardrop <mister.wardrop@gmail.com>
 # Setup environment
 ENV BUDGETLESS_DB=/data/budgetless.db
 EXPOSE 5000
+RUN chpasswd <<< "root:budgetless"
 
 # Install dependencies
 RUN pacman --noconfirm -Syu
