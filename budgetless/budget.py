@@ -30,7 +30,7 @@ MONTHS = [
 
 class Budget(object):
 
-    def __init__(self, database='budgetless.db', debug=True):
+    def __init__(self, database='budgetless.db', debug=False):
         self.debug = debug
 
         self.database = database

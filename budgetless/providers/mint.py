@@ -64,7 +64,7 @@ class MintAPIProvider(TransactionProvider):
 
     def transactions(self, fromdate=None):
         m = mintapi.Mint(self.__username, self.__password)
-        print (m.get_transactions_json())
+        time.sleep(20) # Give mint.com time to synchronise transactions with banks
         yield from self.__remap(m.get_transactions_json())
 
 
