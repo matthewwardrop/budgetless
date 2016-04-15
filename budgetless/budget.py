@@ -108,7 +108,8 @@ class Budget(object):
             return self.__config
 
     def sync(self):
-        return self.transactions.sync(self.sources.providers)
+        self.transactions.sync(self.sources.providers)
+        self.config.set('sync.last', datetime.datetime.utcnow(), pickle=True)
 
     def onbudget(self, df):
         preallocated = self.allocations.get_categories()

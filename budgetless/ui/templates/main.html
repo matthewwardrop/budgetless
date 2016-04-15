@@ -3,7 +3,11 @@
 
 <head>
 
-<script src="https://cdn.plot.ly/plotly-latest.min.js" > </script>
+<script src="static/jquery-2.2.2.min.js"></script>
+<script src="static/jquery.blockUI.js"></script>
+<script src="static/jquery-dateFormat.min.js"></script>
+<script src='static/main.js'></script>
+
 <link rel="stylesheet" href="static/main.css"/>
 
 </head>
@@ -13,12 +17,24 @@
 <div id='content'>
 	<div id='leftpane'>
 		<h1>Budget<i>Less</i></h1>
+		<span class='sync_status'>
+			{% if sync_last %}
+			<script>
+			var date = new Date(Date.UTC({{ sync_last.strftime('%Y,%m,%d,%H,%M,%S') }}));
+			document.write(
+				$.format.date(date, "yyyy-MM-dd HH:mm:ss")
+			);
+			</script>
+			{% else %}
+			Pending Sync
+			{% endif %}
+		</span>
 		<div id='month_list'>
 
 		</div>
-		<div>
+		<!-- <div> TODO!
 			Settings
-		</div>
+		</div> -->
 	</div>
 
 	<div id='body'>
@@ -27,7 +43,7 @@
 	    <div class="card card-block fill flexbox">
 				<div id='toppane_inner'>
 		    	{% block toppane %}
-					{% endblock %}'
+					{% endblock %}
 				</div>
 	    </div>
 		</div>
@@ -43,10 +59,9 @@
 	</div>
 </div>
 
-<script src="https://code.jquery.com/jquery-2.2.2.min.js"></script>
-<script src="http://malsup.github.io/jquery.blockUI.js"></script>
-<script src='static/main.js'></script>
+<script src="static/plotly.min.js" > </script>
 <script>
+$.blockUI.defaults.css = {};
 $( document ).ready(function() {
 	showYearSummary("{{ year }}");
 	showWeekChart("{{ date }}");

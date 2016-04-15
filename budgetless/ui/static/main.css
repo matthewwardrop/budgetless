@@ -16,11 +16,28 @@ body {
 }
 
 #leftpane .month {
-	padding: 10px;
+	padding: 5px;
 }
 
 h1 {
 	text-align: center;
+	margin: 0px;
+}
+
+.sync_status {
+	display: block;
+	padding: 5px;
+	text-align: center;
+	margin-bottom: 10px;
+	font-style: italic;
+}
+
+.loading {
+	border-radius: 5px;
+	background: rgba(0,0,0,0.5);
+	font-size: xx-large;
+	padding: 20px;
+	color: #fff;
 }
 
 .this_week {
@@ -129,9 +146,13 @@ h1 {
 	border-left: 1px solid #aaa;
 }
 
+#month_list .selector {
+	margin-bottom: 10px;
+}
+
 .month {
 	display: flex;
-	margin: 5px;
+	margin: 2px;
 }
 .month:hover {
 	border-radius: 5px;

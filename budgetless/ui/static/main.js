@@ -1,7 +1,6 @@
 function block(element) {
 	$(element).block({
-		message: '<h1>Processing</h1>',
-		css: { border: '3px solid #a00' }
+		message: '<span class="loading">...</span>'
 	});
 }
 
@@ -10,11 +9,11 @@ function unblock(element) {
 }
 
 function load_panel(element, url, blockel,f ) {
-	if (typeof blockel == undefined) {
+	if (typeof blockel === 'undefined') {
 		blockel = element;
 	}
 	block(blockel);
-	$(element).load(url, function () {unblock(blockel); if (typeof f != undefined) f();});
+	$(element).load(url, function () {unblock(blockel); if (typeof f !== 'undefined') f();});
 }
 
 function showYearSummary(year) {
@@ -22,13 +21,21 @@ function showYearSummary(year) {
 }
 
 function showWeekChart(date) {
+	if (typeof(current_date) !== 'undefined') {
+		var dateChange = (current_date != date);
+	} else {
+		var dateChange = false;
+	}
+
 	current_date = date;
 	load_panel('#toppane_inner','panel/week_chart?date='+date,'#toppane', function () {
 		$('.js-plotly-plot').get(0).on('plotly_click', function(data) {
 				showDayTransactions(data['points'][0]['x']);
 		});
 	});
-	$('#botpane_inner').empty();
+	if (dateChange) {
+		$('#botpane_inner').empty();
+	}
 
 }
 
@@ -44,7 +51,7 @@ function toggleOffBudget(el, id) {
 			parent.toggleClass('offbudget');
 		},
 		success: function() {
-			refresh()
+			showWeekChart(current_date);
 		}
 	});
 }
@@ -81,6 +88,6 @@ function showDayTransactions(date) {
 }
 
 function refresh() {
-	if (typeof current_date != undefined) showWeekChart(current_date);
-	if (typeof current_day != undefined) showDayTransactions(current_day);
+	if (typeof current_date !== 'undefined') showWeekChart(current_date);
+	if (typeof current_day !== 'undefined') showDayTransactions(current_day);
 }

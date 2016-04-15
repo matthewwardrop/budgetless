@@ -57,7 +57,8 @@ tbl_conf = Table('config', db_metadata,
                Column('id', Integer, primary_key=True),
 
                Column('option', String, nullable=False),
-               Column('value', String)
+               Column('value', String),
+               Column('pickle', Boolean, default=False)
                )
 
 

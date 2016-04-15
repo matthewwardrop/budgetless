@@ -69,5 +69,6 @@ def main(date, weekstart):
 
     return render_template(
         'main.html',
+        sync_last=current_app.config['budget'].config.get('sync.last'),
         date=date.date(),
         year=date.year)
