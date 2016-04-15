@@ -3,13 +3,14 @@ MAINTAINER Matthew Wardrop <mister.wardrop@gmail.com>
 
 # Setup environment
 ENV BUDGETLESS_DB=/data/budgetless.db
+ENV BUDGETLESS_LOG=/data/budgetless.log
 EXPOSE 5000
 RUN chpasswd <<< "root:budgetless"
 
 # Install dependencies
 RUN pacman --noconfirm -Syu
 RUN pacman --noconfirm -S python-flask python-pip python-pandas python-numpy \
-	python-sqlalchemy python-matplotlib gcc cython python-sympy fcron
+	python-sqlalchemy python-matplotlib gcc cython python-sympy fcron syslog-ng
 RUN pip install gunicorn mintapi plotly parampy
 RUN pip install git+https://github.com/matthewwardrop/budgetless.git
 
@@ -21,4 +22,4 @@ RUN chmod +x /etc/cron.hourly/budgetless_update
 RUN mkdir -p $(dirname $BUDGETLESS_DB)
 
 # Run cron daemon and deploy budgetless server
-CMD fcron && budgetless ${BUDGETLESS_DB} deploy
+CMD syslog-ng && fcron && budgetless ${BUDGETLESS_DB} deploy &> ${BUDGETLESS_LOG} & /bin/bash
