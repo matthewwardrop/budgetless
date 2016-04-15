@@ -12,18 +12,7 @@
 <div id='content'>
 	<div id='leftpane'>
 		<h1>Budget<i>Less</i></h1>
-		<span class='sync_status'>
-			{% if sync_last %}
-			<script>
-			var date = new Date(Date.UTC({{ sync_last.strftime('%Y,%m,%d,%H,%M,%S') }}));
-			document.write(
-				$.format.date(date, "yyyy-MM-dd HH:mm:ss")
-			);
-			</script>
-			{% else %}
-			Pending Sync
-			{% endif %}
-		</span>
+		<span id='sync_status' class='sync_status'></span>
 		<div id='month_list'>
 
 		</div>
@@ -64,6 +53,15 @@ $.blockUI.defaults.css = {};
 $( document ).ready(function() {
 	showYearSummary("{{ year }}");
 	showWeekChart("{{ date }}");
+
+	var date = new Date(Date.UTC({{ sync_last.strftime('%Y,%m,%d,%H,%M,%S') }}));
+	$("#sync_status").html(
+		{% if sync_last %}
+			$.format.date(date, "yyyy-MM-dd HH:mm:ss")
+		{% else %}
+		"Pending Sync"
+		{% endif %}
+	);
 });
 </script>
 </body>

@@ -11,7 +11,7 @@ RUN chpasswd <<< "root:budgetless"
 RUN pacman --noconfirm -Syu
 RUN pacman --noconfirm -S python-flask python-pip python-pandas python-numpy \
 	python-sqlalchemy python-matplotlib gcc cython python-sympy fcron syslog-ng
-RUN pip install gunicorn mintapi plotly parampy
+RUN pip install gunicorn mintapi plotly==1.9.6 parampy
 RUN pip install git+https://github.com/matthewwardrop/budgetless.git
 
 # Set up automatic budget updates
