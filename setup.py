@@ -11,7 +11,7 @@ setup(name='budgetless',
       #download_url='https://github.com/matthewwardrop/python-relentless',
       packages=['budgetless','budgetless.providers','budgetless.ui'],
       package_data = {
-              'budgetless.ui': ['templates/*.html', 'templates/panel/*.html', 'static/main.css', 'static/main.js']
+              'budgetless.ui': ['templates/*.html', 'templates/panel/*.html', 'static/*.css', 'static/*.js']
           },
       requires=['parampy','pandas','numpy', 'sqlalchemy', 'plotly', 'matplotlib'],
       scripts=['scripts/budgetless']
