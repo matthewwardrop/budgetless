@@ -13,7 +13,7 @@ setup(name='budgetless',
       package_data = {
               'budgetless.ui': ['templates/*.html', 'templates/panel/*.html', 'static/*.css', 'static/*.js']
           },
-      requires=['parampy','pandas','numpy', 'sqlalchemy', 'plotly', 'matplotlib'],
+      requires=['parampy','pandas','numpy', 'sqlalchemy', 'plotly', 'matplotlib', 'pytz'],
       scripts=['scripts/budgetless']
 
      )

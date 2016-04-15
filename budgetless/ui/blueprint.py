@@ -26,6 +26,18 @@ def transaction_props():
     current_app.config['budget'].transactions.update_transaction(id, **d)
     return ''
 
+@blueprint.route('/ajax/sync_status', methods=['GET', 'POST'])
+def sync():
+    if request.method == 'POST':
+        current_app.config['budget'].sync(force=True)
+
+    ds_sync = current_app.config['budget'].config.get('sync.last')
+    delta = datetime.timedelta(minutes=int(request.args.get('offset', 0)))
+
+    return render_template('panel/sync_status.html',
+                           sync_last=ds_sync - delta
+                           )
+
 @blueprint.route('/panel/<panel>')
 def panel(panel):
     if panel == 'week_list':
@@ -69,6 +81,5 @@ def main(date, weekstart):
 
     return render_template(
         'main.html',
-        sync_last=current_app.config['budget'].config.get('sync.last'),
         date=date.date(),
         year=date.year)

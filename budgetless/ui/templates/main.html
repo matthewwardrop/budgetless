@@ -2,6 +2,7 @@
 <html>
 
 <head>
+	<title>BudgetLess</title>
 
 <link rel="stylesheet" href="static/main.css"/>
 
@@ -53,15 +54,7 @@ $.blockUI.defaults.css = {};
 $( document ).ready(function() {
 	showYearSummary("{{ year }}");
 	showWeekChart("{{ date }}");
-
-	var date = new Date(Date.UTC({{ sync_last.strftime('%Y,%m,%d,%H,%M,%S') }}));
-	$("#sync_status").html(
-		{% if sync_last %}
-			$.format.date(date, "yyyy-MM-dd HH:mm:ss")
-		{% else %}
-		"Pending Sync"
-		{% endif %}
-	);
+	showSyncStatus();
 });
 </script>
 </body>

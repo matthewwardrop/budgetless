@@ -10,7 +10,8 @@ RUN chpasswd <<< "root:budgetless"
 # Install dependencies
 RUN pacman --noconfirm -Syu
 RUN pacman --noconfirm -S python-flask python-pip python-pandas python-numpy \
-	python-sqlalchemy python-matplotlib gcc cython python-sympy fcron syslog-ng
+	python-sqlalchemy python-matplotlib gcc cython python-sympy fcron syslog-ng \
+	python-pytz
 RUN pip install gunicorn mintapi plotly==1.9.6 parampy
 RUN pip install git+https://github.com/matthewwardrop/budgetless.git
 

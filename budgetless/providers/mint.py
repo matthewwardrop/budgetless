@@ -3,6 +3,8 @@ from ..transactions import TransactionProvider
 import mintapi
 import datetime
 import time
+import random
+
 
 class MintAPIProvider(TransactionProvider):
     name = "mintapi"
@@ -12,7 +14,7 @@ class MintAPIProvider(TransactionProvider):
             date += " " + time.strftime('%Y')
         return datetime.datetime.strptime(date, '%b %d %Y').date()
 
-    def __map_type(self, is_transfer, is_check ):
+    def __map_type(self, is_transfer, is_check):
         if is_transfer:
             return 'transfer'
         elif is_check:
@@ -57,16 +59,27 @@ class MintAPIProvider(TransactionProvider):
     def __init__(self, username, password):
         self.__username = username
         self.__password = password
+        self.__sync_delay = 0
 
     def __remap(self, transactions):
         for transaction in transactions:
             yield self.__map_transaction(transaction)
 
     def transactions(self, fromdate=None):
+        time.sleep(self.__sync_delay)
+        self.__sync_delay = 0
         m = mintapi.Mint(self.__username, self.__password)
-        time.sleep(20) # Give mint.com time to synchronise transactions with banks
+        time.sleep(20+10*random.random())  # Give mint.com time to synchronise transactions with banks
         yield from self.__remap(m.get_transactions_json())
 
+    def should_sync():
+        cur_date = datetime.datetime.utcnow().replace(tzinfo=pytz.utc)
+        loc_date = cur_date.astimezone(pytz.timezone('America/Los_Angeles'))
+
+        if loc_date.hour == 23:
+            self.__sync_delay = 45*60*random.random()  # random delay between 0 and 45 minutes
+            return True
+        return False
 
     def update_mapping(self, before, after):
         return {}

@@ -48,6 +48,9 @@ class TransactionProvider(object, metaclass=UpdateTransactionProviderRegistry):
         mapping = {}
         return mapping
 
+    def should_sync(self):
+        return True
+
 class TransactionSourcePool(DBPool):
 
     def list(self):
@@ -78,24 +81,26 @@ class TransactionPool(object):
     def __init__(self, engine):
         self.engine = engine
 
-    def sync(self, providers):
+    def sync(self, providers, force=False):  # TODO: Make this multithreaded
         for provider in providers:
-            if provider.id == None:
+            if provider.id is None:
                 raise ValueError("Providers must have a valid id.")
+
+            if not force and not provider.should_sync():
+                continue
+
             def add_id(d):
                 d['provider_id'] = provider.id
                 return d
+
             txns = [add_id(txn) for txn in provider.transactions()]
             insert, update, remove = self.__get_sync_actions(provider, txns)
 
             if len(insert) > 0:
-                print("ADDING: %d"%len(insert))
                 self.add(insert)
             if len(update) > 0:
-                print("UPDATING: %d"%len(update))
                 self.update(update)
             if len(remove) > 0:
-                print("REMOVING: %d" % len(remove))
                 self.remove(remove)
 
     def __get_sync_actions(self, provider, txns):

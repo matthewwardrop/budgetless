@@ -107,8 +107,8 @@ class Budget(object):
             self.__config = ConfigPool(self.engine)
             return self.__config
 
-    def sync(self):
-        self.transactions.sync(self.sources.providers)
+    def sync(self, force=False):
+        self.transactions.sync(self.sources.providers, force=force)
         self.config.set('sync.last', datetime.datetime.utcnow(), pickle=True)
 
     def onbudget(self, df):

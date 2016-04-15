@@ -16,6 +16,25 @@ function load_panel(element, url, blockel,f ) {
 	$(element).load(url, function () {unblock(blockel); if (typeof f !== 'undefined') f();});
 }
 
+function showSyncStatus() {
+	load_panel('#sync_status', 'ajax/sync_status?offset='+(new Date().getTimezoneOffset()))
+}
+
+function sync() {
+	block($('#sync_status'));
+	$.ajax({
+		type: 'POST',
+	  url: 'ajax/sync_status',
+		success: function() {
+			showSyncStatus();
+			refresh();
+		},
+		error: function() {
+			showSyncStatus();
+		}
+	});
+}
+
 function showYearSummary(year) {
 	load_panel('#month_list','panel/week_list?year='+year, '#leftpane');
 }
