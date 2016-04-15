@@ -1,0 +1,6 @@
+{% if sync_last %}
+{{ sync_last.strftime('%Y-%m-%d %H:%M:%S') }}
+{% else %}
+Not Synced
+{% endif %}
+ <a href="#" onclick="sync();">&#8635;</a>
