@@ -15,7 +15,7 @@ parser_init = subparsers.add_parser('init')
 parser_init.add_argument('conf_file', help="The file storing init configuration.")
 
 parser_sync = subparsers.add_parser('sync')
-parser_run.add_argument('--force', dest='force', action='store_const', const=True, default=False)
+parser_sync.add_argument('--force', dest='force', action='store_const', const=True, default=False)
 
 parser_run = subparsers.add_parser('run')
 parser_run.add_argument('--debug', dest='debug', action='store_const', const=True, default=False)
