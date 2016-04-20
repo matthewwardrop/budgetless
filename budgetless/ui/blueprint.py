@@ -3,7 +3,7 @@ from flask import Flask, Blueprint, request, session, g, redirect, url_for, abor
      render_template, flash, current_app
 
 import datetime
-from ..budget import get_weeks_status, MONTHS
+from ..budget import get_weeks_status, MONTHS, DEFAULT_WEEK_START
 
 blueprint = Blueprint('simple_page', __name__, template_folder='templates')
 
@@ -30,49 +30,51 @@ def sync():
     if request.method == 'POST':
         current_app.config['budget'].sync(force=True)
 
-    ds_sync = current_app.config['budget'].config.get('sync.last')
-    delta = datetime.timedelta(minutes=int(request.args.get('offset', 0)))
-
     return render_template('panel/sync_status.html',
-                           sync_last=ds_sync - delta
+                           sync_last=get_offset_time(current_app.config['budget'].config.get('sync.last'),  int(request.args.get('tzoffset', 0)))
                            )
 
-@blueprint.route('/panel/<panel>')
-def panel(panel):
+def get_offset_time(dt, tzoffset):
+    return dt - datetime.timedelta(minutes=tzoffset)
+
+@blueprint.route('/panel/week_list/<year>')
+def panel_week_list(year):
     budget = current_app.config['budget']
-    if panel == 'week_list':
-        year = int(request.args.get('year', datetime.datetime.now().year))
-        week_status = get_weeks_status(year, 2)
-        return render_template(
-            'panel/weeklist.html',
-            year=year,
-            months=MONTHS,
-            week_status=week_status
-            )
-    if panel == 'week_chart':
-        date = datetime.datetime.strptime(request.args.get('date'), '%Y-%m-%d')
-        return budget.plot_new(start=date, end=date+datetime.timedelta(7))
-    if panel == 'day_transactions':
+    year = int(year)
+    week_start = int(budget.config.get('week_start', DEFAULT_WEEK_START))
+    return render_template(
+        'panel/weeklist.html',
+        year=year,
+        months=MONTHS,
+        week_status=get_weeks_status(year, week_start)
+        )
 
-        date = datetime.datetime.strptime(request.args.get('date'), '%Y-%m-%d').date()
+@blueprint.route('/panel/week_chart/<date>')
+def panel_week_chart(date):
+    budget = current_app.config['budget']
+    date = datetime.datetime.strptime(date, '%Y-%m-%d')
+    return budget.plot_new(start=date, end=date+datetime.timedelta(7))
 
-        df = budget.transactions.retrieve_df(start_date=date, end_date=date)
-        if len(df) > 0:
-            df['onbudget_nondefault'] = ~df['onbudget'].isnull()
-            df['onbudget'] = budget.onbudget(df)
+@blueprint.route('/panel/transactions/<date>')
+def panel_transactions(date):
+    budget = current_app.config['budget']
+    date = datetime.datetime.strptime(date, '%Y-%m-%d').date()
+    df = budget.transactions.retrieve_df(start_date=date, end_date=date)
+    if len(df) > 0:
+        df['onbudget_nondefault'] = ~df['onbudget'].isnull()
+        df['onbudget'] = budget.onbudget(df)
 
-        return render_template('panel/transactions.html', df=df, date=date)
-
+    return render_template('panel/transactions.html', df=df, date=date)
 
 @blueprint.route('/', defaults={'date': None, 'weekstart': 2})
 @blueprint.route('/chart/<date>', defaults={'weekstart': 2})
 @blueprint.route('/chart/<date>/<int:weekstart>')
 def main(date, weekstart):
 
-    if date is None:
-        date = datetime.datetime.now().date()
-        date = datetime.datetime.combine(date, datetime.time())
+    budget = current_app.config['budget']
 
+    if date is None:
+        date = datetime.datetime.utcnow()
     else:
         date = datetime.datetime.strptime(date, '%Y-%m-%d')
 
@@ -81,5 +83,6 @@ def main(date, weekstart):
 
     return render_template(
         'main.html',
+        js_week_start=(budget.config.get('week_start', DEFAULT_WEEK_START)+1)%7,
         date=date.date(),
         year=date.year)

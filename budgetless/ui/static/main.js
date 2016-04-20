@@ -17,7 +17,7 @@ function load_panel(element, url, blockel,f ) {
 }
 
 function showSyncStatus() {
-	load_panel('#sync_status', 'ajax/sync_status?offset='+(new Date().getTimezoneOffset()))
+	load_panel('#sync_status', 'ajax/sync_status?tzoffset='+(new Date().getTimezoneOffset()))
 }
 
 function sync() {
@@ -36,7 +36,7 @@ function sync() {
 }
 
 function showYearSummary(year) {
-	load_panel('#month_list','panel/week_list?year='+year, '#leftpane');
+	load_panel('#month_list','panel/week_list/'+year, '#leftpane');
 }
 
 function showWeekChart(date) {
@@ -47,7 +47,7 @@ function showWeekChart(date) {
 	}
 
 	current_date = date;
-	load_panel('#toppane_inner','panel/week_chart?date='+date,'#toppane', function () {
+	load_panel('#toppane_inner','panel/week_chart/'+date,'#toppane', function () {
 		$('.js-plotly-plot').get(0).on('plotly_click', function(data) {
 				showDayTransactions(data['points'][0]['x']);
 		});
@@ -103,7 +103,7 @@ function saveNotes(el, id) {
 
 function showDayTransactions(date) {
 	current_day=date;
-	load_panel('#botpane_inner','panel/day_transactions?date='+date, '#botpane');
+	load_panel('#botpane_inner','panel/transactions/'+date, '#botpane');
 }
 
 function refresh() {

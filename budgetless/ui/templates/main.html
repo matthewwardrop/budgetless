@@ -52,8 +52,16 @@
 <script>
 $.blockUI.defaults.css = {};
 $( document ).ready(function() {
-	showYearSummary("{{ year }}");
-	showWeekChart("{{ date }}");
+	// Get the date corresponding to the beginning of the week
+	var weekDate = new Date();
+	var day_offset = (weekDate.getDay() - {{js_week_start}}) % 7;
+	if (day_offset < 0) {
+		day_offset += 7;
+	}
+	weekDate.setDate(weekDate.getDate() - day_offset);
+
+	showYearSummary(new Date().getFullYear());
+	showWeekChart($.format.date(weekDate,'yyyy-MM-dd'));
 	showSyncStatus();
 });
 </script>
