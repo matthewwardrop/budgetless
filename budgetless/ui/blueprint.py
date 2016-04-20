@@ -3,8 +3,7 @@ from flask import Flask, Blueprint, request, session, g, redirect, url_for, abor
      render_template, flash, current_app
 
 import datetime
-from ..budget import Budget, \
-    get_weeks_status, MONTHS
+from ..budget import get_weeks_status, MONTHS
 
 blueprint = Blueprint('simple_page', __name__, template_folder='templates')
 
@@ -40,6 +39,7 @@ def sync():
 
 @blueprint.route('/panel/<panel>')
 def panel(panel):
+    budget = current_app.config['budget']
     if panel == 'week_list':
         year = int(request.args.get('year', datetime.datetime.now().year))
         week_status = get_weeks_status(year, 2)
@@ -51,15 +51,15 @@ def panel(panel):
             )
     if panel == 'week_chart':
         date = datetime.datetime.strptime(request.args.get('date'), '%Y-%m-%d')
-        return current_app.config['budget'].plot_new(start=date, end=date+datetime.timedelta(7))
+        return budget.plot_new(start=date, end=date+datetime.timedelta(7))
     if panel == 'day_transactions':
 
         date = datetime.datetime.strptime(request.args.get('date'), '%Y-%m-%d').date()
 
-        df = current_app.config['budget'].transactions.retrieve_df(start_date=date, end_date=date)
+        df = budget.transactions.retrieve_df(start_date=date, end_date=date)
         if len(df) > 0:
             df['onbudget_nondefault'] = ~df['onbudget'].isnull()
-            df['onbudget'] = Budget().onbudget(df)
+            df['onbudget'] = budget.onbudget(df)
 
         return render_template('panel/transactions.html', df=df, date=date)
 
