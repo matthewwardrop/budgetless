@@ -3,6 +3,7 @@ from ..transactions import TransactionProvider
 import mintapi
 import datetime
 import time
+import pytz
 import random
 
 
@@ -72,7 +73,7 @@ class MintAPIProvider(TransactionProvider):
         time.sleep(20+10*random.random())  # Give mint.com time to synchronise transactions with banks
         yield from self.__remap(m.get_transactions_json())
 
-    def should_sync():
+    def should_sync(self):
         cur_date = datetime.datetime.utcnow().replace(tzinfo=pytz.utc)
         loc_date = cur_date.astimezone(pytz.timezone('America/Los_Angeles'))
 
