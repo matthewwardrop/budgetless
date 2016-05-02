@@ -18,7 +18,7 @@ class Analysis(object):
         def is_onbudget_date(txns):
             if len(txns) == 0:
                 return pd.DataFrame({'onbudget':pd.Series([])})
-            date = txns['date_ref' if 'date_seen' else 'date'].iloc[0]
+            date = txns['date_ref' if date_seen else 'date'].iloc[0]
             preallocated = self.budget.allocations.get_categories(date)
             return pd.DataFrame(
                         {'onbudget':
@@ -36,3 +36,27 @@ class Analysis(object):
     def onbudget_transactions(self, start_date, end_date=None, date_seen=True):
         txns = self.transactions(start_date, end_date, date_seen=date_seen)
         return txns[txns['onbudget_ref']]
+
+    def get_daily_stats(self, txns, date_seen=True):
+        def stats_date(txns):
+            if len(txns) == 0:
+                return pd.DataFrame({'surplus':pd.Series([])})
+            date = txns['date_ref' if date_seen else 'date'].iloc[0]
+            surplus = self.budget.allocations.get_daily_surplus(date)
+            return pd.DataFrame([{
+                    'surplus': surplus + txns[txns['onbudget_ref']].amount.sum()/100,
+                    'count': len(txns),
+                    'net': txns['amount'].sum()/100,
+                    'net_onbudget': txns[txns['onbudget_ref']].amount.sum()/100,
+                    'available': surplus
+                }])
+        return txns.groupby('date_ref').apply(stats_date).reset_index(level=1, drop=True)
+
+    def get_stats(self, txns, date_seen=True):
+        return self.get_daily_stats(txns, date_seen=date_seen).sum()
+
+    def daily_stats(self, start_date, end_date=None, date_seen=True):
+        return self.get_daily_stats(self.transactions(start_date, end_date, date_seen), date_seen=True)
+
+    def stats(self, start_date, end_date=None, date_seen=True):
+        return self.get_stats(self.transactions(start_date, end_date, date_seen), date_seen=True)
