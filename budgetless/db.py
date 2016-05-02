@@ -14,14 +14,14 @@ tbl_txn = Table('transactions', db_metadata,
                 Column('provider_id', Integer, ForeignKey("providers.id"), nullable=False),
 
                 Column('tracking_id', String),
-                Column('date_seen', Date, nullable=False,
-                       default=datetime.datetime.utcnow),
 
                 Column('amount', Integer, nullable=False),
                 Column('currency', String, default='USD'),
 
                 Column('date', Date),
                 Column('date_orig', Date, nullable=False),
+                Column('date_seen', Date, nullable=False,
+                       default=datetime.datetime.utcnow),
 
                 Column('description', String),
                 Column('description_orig', String),

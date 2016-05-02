@@ -9,6 +9,7 @@ from .allocations import AllocationPool
 from .config import ConfigPool
 from .db import db_metadata
 from .transactions import TransactionPool, TransactionSourcePool
+from .analysis import Analysis
 from . import util
 
 MONTHS = [
@@ -100,6 +101,14 @@ class Budget(object):
             return self.__transactions
 
     @property
+    def analysis(self):
+        try:
+            return self.__analysis
+        except:
+            self.__analysis = Analysis(self)
+            return self.__analysis
+
+    @property
     def config(self):
         try:
             return self.__config
@@ -110,11 +119,3 @@ class Budget(object):
     def sync(self, force=False):
         self.transactions.sync(self.sources.providers, force=force)
         self.config.set('sync.last', datetime.datetime.utcnow(), pickle=True)
-
-    def onbudget(self, df):
-        preallocated = self.allocations.get_categories()
-        return (df['onbudget'] == 1) | (df['onbudget'].isnull() & ~(df['category_hint'].str.lower().isin(preallocated) | df['description_orig'].str.lower().str.contains('transfer') | df['description_orig'].str.lower().str.contains('p2p')))
-
-    def get_unallocated_transactions(self):
-        df = self.transactions.retrieve_df()
-        return df[self.onbudget(df)]

@@ -55,16 +55,15 @@ def panel_week_list(year):
 def panel_week_chart(date):
     budget = current_app.config['budget']
     date = datetime.datetime.strptime(date, '%Y-%m-%d')
-    return plot_spending(budget, start=date, end=date+datetime.timedelta(7))
+    return plot_spending(budget, start=date.date(), end=(date+datetime.timedelta(7)).date())
 
 @blueprint.route('/panel/transactions/<date>')
 def panel_transactions(date):
     budget = current_app.config['budget']
     date = datetime.datetime.strptime(date, '%Y-%m-%d').date()
-    df = budget.transactions.retrieve_df(start_date=date, end_date=date)
+    df = budget.analysis.transactions(start_date=date, end_date=date, date_seen=True)
     if len(df) > 0:
         df['onbudget_nondefault'] = ~df['onbudget'].isnull()
-        df['onbudget'] = budget.onbudget(df)
 
     return render_template('panel/transactions.html', df=df, date=date)
 

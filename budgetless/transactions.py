@@ -2,8 +2,9 @@ import pickle
 
 import pandas
 from sqlalchemy import insert, delete, select, update
-from sqlalchemy.sql import and_
+from sqlalchemy.sql import and_, func
 import pytz
+import datetime
 from . import util
 
 from .db import DBPool, tbl_txn, tbl_src
@@ -173,20 +174,26 @@ class TransactionPool(object):
             conn.execute(tbl_txn.delete())
             tbl_txn.create(conn)
 
-    def retrieve(self, start_date=None, end_date=None, order_seen=False, provider=None):
+    def retrieve(self, start_date=None, end_date=None, date_seen=False, provider=None):
+        assert type(start_date) == datetime.date
+        assert type(end_date) == datetime.date
         with self.engine.begin() as conn:
+            if date_seen:
+                date_field = func.min(tbl_txn.c.date, tbl_txn.c.date_seen)
+            else:
+                date_field = tbl_txn.c.date
             s = select([tbl_txn]).where(
                 and_(
-                    tbl_txn.c.date >= start_date if start_date is not None else True,
-                    tbl_txn.c.date <= end_date if end_date is not None else True,
+                    date_field >= start_date if start_date is not None else True,
+                    date_field <= end_date if end_date is not None else True,
                     tbl_txn.c.provider_id == provider if provider is not None else True
                 )
-            ).order_by('date_seen' if order_seen else 'date')
+            ).order_by(date_field)
             for txn in conn.execute(s):
                 yield dict(txn)
 
-    def retrieve_df(self, start_date=None, end_date=None):
-        return pandas.DataFrame(list(self.retrieve(start_date, end_date)))
+    def retrieve_df(self, start_date=None, end_date=None, date_seen=False, provider=None):
+        return pandas.DataFrame(list(self.retrieve(start_date, end_date, date_seen, provider)))
 
     def update_transaction(self, id, **props):
         stmt = update(tbl_txn).where(tbl_txn.c.id==id).values(**props)

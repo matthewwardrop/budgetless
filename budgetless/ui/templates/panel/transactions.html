@@ -1,7 +1,7 @@
 <div class='panel-header'>Transactions for {{date}}</div>
 
 {% for i, row in df.iterrows() %}
-<div class='transaction {% if row.pending %}pending{% endif %} {% if not row.onbudget %}offbudget{% endif %}'>
+<div class='transaction {% if row.pending %}pending{% endif %} {% if not row.onbudget_ref %}offbudget{% endif %}'>
   <span class='amount'>{{ '%.2f' % (row.amount/100) }}</span>
   <span class='description' title="{{ row.description_orig }}">{{ row.description }}</span>
   <span class='category'>&nbsp;({{ row.category_hint }})</span>
