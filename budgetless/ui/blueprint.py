@@ -3,7 +3,9 @@ from flask import Flask, Blueprint, request, session, g, redirect, url_for, abor
      render_template, flash, current_app
 
 import datetime
-from ..budget import get_weeks_status, MONTHS, DEFAULT_WEEK_START
+from ..budget import MONTHS, DEFAULT_WEEK_START
+from ..util import get_weeks_status
+from .plots import plot_spending
 
 blueprint = Blueprint('simple_page', __name__, template_folder='templates')
 
@@ -53,7 +55,7 @@ def panel_week_list(year):
 def panel_week_chart(date):
     budget = current_app.config['budget']
     date = datetime.datetime.strptime(date, '%Y-%m-%d')
-    return budget.plot_new(start=date, end=date+datetime.timedelta(7))
+    return plot_spending(budget, start=date, end=date+datetime.timedelta(7))
 
 @blueprint.route('/panel/transactions/<date>')
 def panel_transactions(date):

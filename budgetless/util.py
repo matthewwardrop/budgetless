@@ -19,3 +19,28 @@ def convert_datetime(dt, source=pytz.utc, target=pytz.utc):
     if dt.tzinfo is not None:
         source = dt.tzinfo
     return dt.replace(tzinfo=source).astimezone(target)
+
+def get_date_range(start_date, end_date, step=datetime.timedelta(1), inclusive=False):
+    out = []
+    date = start_date
+    while date < end_date:
+        out.append(date)
+        date += step
+    if inclusive and date == end_date:
+        out.append(date)
+    return out
+
+# 0 = Monday, 1 = Tuesday, 2 = Wednesday, 3 = Thursday..
+def get_weeks_status(year, daystart=2):
+    now = datetime.datetime.now().date()
+    start_week = datetime.date(year,1,1)
+    start_week += datetime.timedelta( (daystart - start_week.weekday()) % 7 )
+
+    status = {}
+
+    week = start_week
+    while week.year == year:
+        status[week.month] = status.get(week.month,[]) + [{'surplus': True, 'past': now > week, 'start': week}]
+        week += datetime.timedelta(7)
+
+    return status
