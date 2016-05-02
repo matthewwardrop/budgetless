@@ -23,6 +23,7 @@ def plot_spending(budget, start=None, end=None):
     max_date = max(amounts.index)
 
     dates = get_date_range(start_date=min_date, end_date=max_date, inclusive=True)
+    daily_amount = [budget.allocations.get_daily_surplus(date) for date in dates]
     famounts = [amounts[date] if date in amounts.index else 0 for date in dates]
     pamounts = [pamounts[date] if date in pamounts.index else 0 for date in dates]
 

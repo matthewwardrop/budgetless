@@ -45,7 +45,15 @@ class Analysis(object):
             return txns
         def stats_date(txns):
             if len(txns) == 0:
-                return pd.DataFrame({'surplus':pd.Series([])})
+                return pd.DataFrame([{
+                    'surplus': 0,
+                    'count': 0,
+                    'net': 0,
+                    'onbudget_net': 0,
+                    'onbudget_pending': 0,
+                    'onbudget_reconciled': 0,
+                    'available': None
+                }])
             date = txns['date_ref' if date_seen else 'date'].iloc[0]
             surplus = self.budget.allocations.get_daily_surplus(date)
             onbudget = txns[txns['onbudget_ref']]

@@ -112,11 +112,5 @@ class MintAPIProvider(TransactionProvider):
                     mapping[i] = j
 
         # TODO: More subtle cases
-
-        print (before)
-        print (after)
-        print (mapping)
-
-        #raise ValueError()
-
-        return {}
+        
+        return mapping
