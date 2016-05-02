@@ -3,6 +3,8 @@ import pickle
 import pandas
 from sqlalchemy import insert, delete, select, update
 from sqlalchemy.sql import and_
+import pytz
+from . import util
 
 from .db import DBPool, tbl_txn, tbl_src
 
@@ -51,6 +53,9 @@ class TransactionProvider(object, metaclass=UpdateTransactionProviderRegistry):
     def should_sync(self):
         return True
 
+    def timezone(self):
+        raise pytz.utc
+
 class TransactionSourcePool(DBPool):
 
     def list(self):
@@ -97,7 +102,7 @@ class TransactionPool(object):
             insert, update, remove = self.__get_sync_actions(provider, txns)
 
             if len(insert) > 0:
-                self.add(insert)
+                self.add(insert, timezone=provider.timezone)
             if len(update) > 0:
                 self.update(update)
             if len(remove) > 0:
@@ -144,13 +149,19 @@ class TransactionPool(object):
 
         return insert, update, remove
 
-    def add(self, txns):
+    def add(self, txns, timezone=pytz.utc):
+        if not isinstance(txns, list):
+            txns = [txns]
+        for txn in txns:
+            txn['date_seen'] = util.current_date(timezone)
         with self.engine.begin() as conn:
             conn.execute(tbl_txn.insert(), txns)
 
     def update(self, updates):
         with self.engine.begin() as conn:
             for id, txn in updates.items():
+                if 'date_seen' in txn:
+                    del txn['date_seen']
                 conn.execute(tbl_txn.update().where(tbl_txn.c.id == id).values(txn))
 
     def remove(self, ids):

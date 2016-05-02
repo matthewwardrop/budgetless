@@ -123,7 +123,10 @@ class Budget(object):
         import matplotlib.pyplot as plt
         df = self.get_unallocated_transactions()
 
-        amounts = df.groupby('date').sum()['amount']
+        # create meta field
+        df['date_ref'] = np.min([df['date_seen'], df['date']], axis=0)
+
+        amounts = df.groupby('date_ref').sum()['amount']
 
         min_date = min(amounts.index)
         max_date = max(amounts.index)
@@ -156,9 +159,11 @@ class Budget(object):
 
         df = self.get_unallocated_transactions()
 
-        amounts = df.groupby('date').sum()['amount'].apply(lambda x: -float(x)/100)
+        df['date_ref'] = np.min([df['date_seen'], df['date']], axis=0)
 
-        pamounts = df[df.pending == True].groupby('date').sum()['amount'].apply(lambda x: -float(x)/100)
+        amounts = df.groupby('date_ref').sum()['amount'].apply(lambda x: -float(x)/100)
+
+        pamounts = df[df.pending == True].groupby('date_ref').sum()['amount'].apply(lambda x: -float(x)/100)
 
         min_date = min(amounts.index)
         max_date = max(amounts.index)

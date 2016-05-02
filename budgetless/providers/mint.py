@@ -1,4 +1,5 @@
 from ..transactions import TransactionProvider
+from .. import util
 
 import mintapi
 import datetime
@@ -74,60 +75,48 @@ class MintAPIProvider(TransactionProvider):
         yield from self.__remap(m.get_transactions_json())
 
     def should_sync(self):
-        cur_date = datetime.datetime.utcnow().replace(tzinfo=pytz.utc)
-        loc_date = cur_date.astimezone(pytz.timezone('America/Los_Angeles'))
+        loc_date = util.current_datetime(self.timezone)
 
         if loc_date.hour == 23:
             self.__sync_delay = 45*60*random.random()  # random delay between 0 and 45 minutes
             return True
         return False
 
-    def update_mapping(self, before, after):
-        return {}
+    @property
+    def timezone(self):
+        return pytz.timezone('America/Los_Angeles')
 
-    # def __resolve(self, new, missing):
-    #     assert all([m['pending'] == True for ms in missing.values() for m in ms])
-    #
-    #     update = {}
-    #     insert = []
-    #
-    #     print(sorted(new.keys()))
-    #     print(sorted(missing.keys()))
-    #
-    #     for key in missing:
-    #         assert(key in new)
-    #         assert(len(missing[key]) <= len(new[key]))
-    #
-    #         missing_amounts = [ txn['amount'] for txn in missing[key] ]
-    #         new_amounts = [ txn['amount'] for txn in new[key] ]
-    #
-    #         matching = {}
-    #         # Match identical values
-    #         for i,amount in enumerate(missing_amounts):
-    #             j = new_amounts.find(amount)
-    #             while j!=-1:
-    #                 if j not in matching.values():
-    #                     matching[i] = j
-    #                     break
-    #                 j = new_amounts.find(amount, j+1)
-    #
-    #         new_amounts = np.array(new_amounts)
-    #         # Match nearest values
-    #         for i, amount in enumerate(missing_amounts):
-    #             if i in matching:
-    #                 continue
-    #
-    #             order = np.argsort(np.abs(new_amounts - amount))
-    #             for j in order:
-    #                 if j not in matching.values():
-    #                     matching[i] = j
-    #                     break
-    #
-    #         for i,j in matching.items():
-    #             update[missing[i]['id']] = new[j]
-    #
-    #         for j in xrange(len(new_amounts)):
-    #             if j not in matching.values():
-    #                 insert.append(new[j])
-    #
-    #     return update, insert
+    def update_mapping(self, before, after):
+
+        # We assume all deleted entries (i.e. all in before) are deleted because
+        # they have been updated; i.e. moved from pending to non-pending.
+        # Assert this assumption.
+        assert all([b['pending'] is True for b in before])
+
+        # Given the above assumption, every element in before should map to one
+        # in after; unless it was a credit hold.
+
+        mapping = {}
+
+        # We begin by checking for exact matches; if duplicate transactions exist
+        # this may fail to correctly associate entries; but since the transactions
+        # have the same metadata, that does not matter.
+        for i, b in enumerate(before):
+            for j, a in enumerate(after):
+                if j in mapping.values():
+                    continue
+                if (str(b['amount']) == str(a['amount']) and
+                        b['description'].lower() == a['description'].lower() and
+                        b['institution'].lower() == a['institution'].lower() and
+                        b['account'].lower() == a['account'].lower()):
+                    mapping[i] = j
+
+        # TODO: More subtle cases
+
+        print (before)
+        print (after)
+        print (mapping)
+
+        #raise ValueError()
+
+        return {}
