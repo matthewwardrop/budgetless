@@ -12,24 +12,24 @@ from .transactions import TransactionPool, TransactionSourcePool
 from .analysis import Analysis
 from . import util
 
-MONTHS = [
-    'January',
-    'February',
-    'March',
-    'April',
-    'May',
-    'June',
-    'July',
-    'August',
-    'September',
-    'October',
-    'November',
-    'December'
-    ]
-
-DEFAULT_WEEK_START = 5 # Saturday, 0=Monday
-
 class Budget(object):
+
+    MONTHS = [
+        'January',
+        'February',
+        'March',
+        'April',
+        'May',
+        'June',
+        'July',
+        'August',
+        'September',
+        'October',
+        'November',
+        'December'
+        ]
+
+    DEFAULT_WEEK_START = 5 # Saturday, 0=Monday
 
     def __init__(self, database='budgetless.db', debug=False):
         self.debug = debug

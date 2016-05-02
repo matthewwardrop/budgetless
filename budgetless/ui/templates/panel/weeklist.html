@@ -5,11 +5,11 @@
 </div>
 
 {% for month in months %}
-<div class='month'>
+<div class='month {% if month_surplus[loop.index] < 0 %} deficit {% endif %}'  title='{{month_surplus[loop.index]}}'>
 	<span class='name'>{{ month[:3] }}</span>
 	<div class='statii'>
 	{% for status in week_status[loop.index] %}
-		<a onclick='showWeekChart("{{ status.start.strftime('%Y-%m-%d') }}");'><div class='month_box {% if not status.past %} future {%elif status.surplus %} surplus {% endif %}'></div></a>
+		<a onclick='showWeekChart("{{ status.start.strftime('%Y-%m-%d') }}");'><div class='month_box {% if status.count == 0 %} empty {% elif not status.past %} future {%elif status.surplus >= 0 %} surplus {% endif %}' title="{{status['surplus']}}"></div></a>
 	{% endfor %}
 </div>
 </div>

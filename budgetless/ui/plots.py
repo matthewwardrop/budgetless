@@ -10,19 +10,17 @@ def plot_spending(budget, start=None, end=None):
     import plotly.graph_objs as go
     import plotly.offline as py
 
-    df = budget.analysis.onbudget_transactions(start, end)
+    df = budget.analysis.daily_stats(start, end)
 
     if len(df) == 0:
-        return
+        return "No data."
 
-    amounts = df.groupby('date_ref').sum()['amount'].apply(lambda x: -float(x)/100)
-
-    pamounts = df[df.pending == True].groupby('date_ref').sum()['amount'].apply(lambda x: -float(x)/100)
+    amounts = -df['onbudget_net']
+    pamounts = -df['onbudget_pending']
+    daily_amount = df['available']
 
     min_date = min(amounts.index)
     max_date = max(amounts.index)
-
-    daily_amount = budget.allocations.get_daily_surplus()
 
     dates = get_date_range(start_date=min_date, end_date=max_date, inclusive=True)
     famounts = [amounts[date] if date in amounts.index else 0 for date in dates]
@@ -61,8 +59,8 @@ def plot_spending(budget, start=None, end=None):
     )
     trace3 = go.Scatter(
         x=trend.index,
-        y=[daily_amount]*len(trend),
-        name='Available daily Income')
+        y=daily_amount,
+        name='Available Daily Income')
     data = [trace1, trace15, trace2, trace3]
     layout = go.Layout(
             margin=go.Margin(

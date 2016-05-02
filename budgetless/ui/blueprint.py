@@ -3,9 +3,8 @@ from flask import Flask, Blueprint, request, session, g, redirect, url_for, abor
      render_template, flash, current_app
 
 import datetime
-from ..budget import MONTHS, DEFAULT_WEEK_START
-from ..util import get_weeks_status
 from .plots import plot_spending
+from ..util import current_date
 
 blueprint = Blueprint('simple_page', __name__, template_folder='templates')
 
@@ -41,14 +40,43 @@ def get_offset_time(dt, tzoffset):
 
 @blueprint.route('/panel/week_list/<year>')
 def panel_week_list(year):
+
     budget = current_app.config['budget']
     year = int(year)
-    week_start = int(budget.config.get('week_start', DEFAULT_WEEK_START))
+
+    status = {}
+    month_surplus = {}
+
+    now = current_date()
+
+    for week, stats in budget.analysis.yearly_week_stats(year):
+        if len(stats) == 0:
+            status[week.month] = status.get(week.month,[]) + \
+                [{
+                    'count': 0,
+                    'surplus': 0,
+                    'past': now > week,
+                    'start': week
+                }]
+
+            month_surplus[week.month] = month_surplus.get(week.month,0)
+        else:
+            status[week.month] = status.get(week.month,[]) + \
+                [{
+                    'count': stats['count'],
+                    'surplus': stats['surplus'],
+                    'past': now > week,
+                    'start': week
+                }]
+
+            month_surplus[week.month] = month_surplus.get(week.month,0) + stats.surplus.sum()
+
     return render_template(
         'panel/weeklist.html',
         year=year,
-        months=MONTHS,
-        week_status=get_weeks_status(year, week_start)
+        months=budget.MONTHS,
+        month_surplus=month_surplus,
+        week_status=status
         )
 
 @blueprint.route('/panel/week_chart/<date>')
@@ -84,6 +112,6 @@ def main(date, weekstart):
 
     return render_template(
         'main.html',
-        js_week_start=(budget.config.get('week_start', DEFAULT_WEEK_START)+1)%7,
+        js_week_start=(budget.config.get('week_start', budget.DEFAULT_WEEK_START)+1)%7,
         date=date.date(),
         year=date.year)
