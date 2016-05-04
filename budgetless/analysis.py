@@ -3,6 +3,8 @@ import pandas as pd
 
 import datetime
 
+from .util import get_date_range
+
 class Analysis(object):
 
     def __init__(self, budget):
@@ -41,20 +43,10 @@ class Analysis(object):
         txns = self.transactions(start_date, end_date, date_seen=date_seen)
         return txns[txns['onbudget_ref']]
 
-    def get_daily_stats(self, txns, date_seen=True):
+    def get_daily_stats(self, txns, date_seen=True, fill_start=None, fill_end=None):
         if len(txns) == 0:
             return txns
         def stats_date(txns):
-            if len(txns) == 0:
-                return pd.DataFrame([{
-                    'surplus': 0,
-                    'count': 0,
-                    'net': 0,
-                    'onbudget_net': 0,
-                    'onbudget_pending': 0,
-                    'onbudget_reconciled': 0,
-                    'available': None
-                }])
             date = txns['date_ref' if date_seen else 'date'].iloc[0]
             surplus = self.budget.allocations.get_daily_surplus(date)
             onbudget = txns[txns['onbudget_ref']]
@@ -67,16 +59,33 @@ class Analysis(object):
                     'onbudget_reconciled': onbudget[~onbudget['pending']].amount.sum()/100,
                     'available': surplus
                 }])
-        return txns.groupby('date_ref').apply(stats_date).reset_index(level=1, drop=True)
+        stat_frames = [txns.groupby('date_ref').apply(stats_date).reset_index(level=1, drop=True)]
+        if fill_start is not None and fill_end is not None:
+            dates = get_date_range(fill_start, fill_end, inclusive=True)
+            for date in dates:
+                if date not in stat_frames[0].index:
+                    stat_frames.append(
+                        pd.DataFrame([{
+                            'surplus': self.budget.allocations.get_daily_surplus(date),
+                            'count': 0,
+                            'net': 0,
+                            'onbudget_net': 0,
+                            'onbudget_pending': 0,
+                            'onbudget_reconciled': 0,
+                            'available': self.budget.allocations.get_daily_surplus(date)
+                        }], index=[date])
+                        )
+        return pd.concat(stat_frames).sort_index()
 
-    def get_stats(self, txns, date_seen=True):
-        return self.get_daily_stats(txns, date_seen=date_seen).sum()
+
+    def get_stats(self, txns, date_seen=True, fill_start=None, fill_end=None):
+        return self.get_daily_stats(txns, date_seen=date_seen, fill_start=fill_start, fill_end=fill_end).sum()
 
     def daily_stats(self, start_date, end_date=None, date_seen=True):
-        return self.get_daily_stats(self.transactions(start_date, end_date, date_seen), date_seen=True)
+        return self.get_daily_stats(self.transactions(start_date, end_date, date_seen), date_seen=True, fill_start=start_date, fill_end=end_date)
 
     def stats(self, start_date, end_date=None, date_seen=True):
-        return self.get_stats(self.transactions(start_date, end_date, date_seen), date_seen=True)
+        return self.get_stats(self.transactions(start_date, end_date, date_seen), date_seen=True, fill_start=start_date, fill_end=end_date)
 
     # Week statii
     def yearly_week_dates(self, year, week_start=None):
