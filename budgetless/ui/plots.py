@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 import datetime
 
-from ..util import get_date_range
+from ..util import get_date_range, current_datetime
 
 def plot_spending(budget, start=None, end=None):
     # These are slow to import, so include them here, so that they are
@@ -19,10 +19,13 @@ def plot_spending(budget, start=None, end=None):
     pamounts = -df['onbudget_pending']
     daily_amount = df['available']
 
+    drange = get_date_range(start, end)
     min_date = min(amounts.index)
     max_date = max(amounts.index)
 
-    dates = get_date_range(start_date=min_date, end_date=max_date, inclusive=True)
+    date_mask = 0 # (end - budget.config.get('last_sync', current_datetime()).date()).days
+
+    dates = get_date_range(start_date=start, end_date=end, inclusive=True)
     daily_amount = [budget.allocations.get_daily_surplus(date) for date in dates]
     famounts = [amounts[date] if date in amounts.index else 0 for date in dates]
     pamounts = [pamounts[date] if date in pamounts.index else 0 for date in dates]
@@ -36,9 +39,8 @@ def plot_spending(budget, start=None, end=None):
         series = series[series.index < end]
         pseries = pseries[pseries.index < end]
 
-    drange = get_date_range(start, end)
-    pad = [0] * (len(drange) - len(series))
 
+    pad = [0] * (len(drange) - len(series))
     date_format = lambda ds: [d.strftime('%A') for d in ds]
 
     trend = (series.cumsum() / pd.Series(np.arange(1, len(series)+1), series.index))
@@ -60,7 +62,7 @@ def plot_spending(budget, start=None, end=None):
     )
     trace3 = go.Scatter(
         x=trend.index,
-        y=daily_amount,
+        y=daily_amount[:-(1+date_mask)],
         name='Available Daily Income')
     data = [trace1, trace15, trace2, trace3]
     layout = go.Layout(
