@@ -51,6 +51,45 @@ class TransactionProvider(object, metaclass=UpdateTransactionProviderRegistry):
         mapping = {}
         return mapping
 
+    @property
+    def update_fields(self):
+        return [
+            'amount',
+            'currency',
+            'date',
+            'date_orig',
+            'description',
+            'description_orig',
+            'type',
+            'category_hint',
+            'account',
+            'institution',
+            'pending'
+        ]
+
+    def compare(self, txn1, txn2):
+        if self.provides_tracking:
+            return txn1['tracking_id'] == txn2['tracking_id']
+
+        compare_keys = [
+            'account',
+            'institution',
+            'description_orig',
+            'date_orig',
+            'type',
+            'amount',
+            'currency'
+        ]
+        # Returns True if transactions are the same, False otherwise
+        for key in compare_keys:
+            if not str(txn1[key]) == str(txn2[key]):
+                return False
+        return True
+
+    @property
+    def provides_tracking(self):
+        return False
+
     def should_sync(self):
         return True
 
@@ -105,7 +144,7 @@ class TransactionPool(object):
             if len(insert) > 0:
                 self.add(insert, timezone=provider.timezone)
             if len(update) > 0:
-                self.update(update)
+                self.update(update, fields=provider.update_fields)
             if len(remove) > 0:
                 self.remove(remove)
 
@@ -116,21 +155,15 @@ class TransactionPool(object):
         txns = sorted(txns, key=lambda x: x['date']) # TODO: Do we need this
         seen_txns = list(self.retrieve(start_date=txns[0]['date'], end_date=txns[-1]['date'], provider=provider.id))
 
-        def cmp_d(a,b):
-            for key in a:
-                if not str(a[key]) == str(b[key]):
-                    return False
-            return True
-
         after = []
         before = []
 
         for txn in txns:
-            if not any( [cmp_d(txn, t) for t in seen_txns] ):
+            if not any( [provider.compare(txn, t) for t in seen_txns] ):
                 after.append(txn)
 
         for t in seen_txns:
-            if not any( [cmp_d(txn, t) for txn in txns] ):
+            if not any( [provider.compare(txn, t) for txn in txns] ):
                 before.append(t)
 
         mapping = provider.update_mapping(before, after)
@@ -158,11 +191,11 @@ class TransactionPool(object):
         with self.engine.begin() as conn:
             conn.execute(tbl_txn.insert(), txns)
 
-    def update(self, updates):
+    def update(self, updates, fields=None):
         with self.engine.begin() as conn:
             for id, txn in updates.items():
-                if 'date_seen' in txn:
-                    del txn['date_seen']
+                if fields is not None:
+                    txn = {field: txn.get(field, None) for field in fields}
                 conn.execute(tbl_txn.update().where(tbl_txn.c.id == id).values(txn))
 
     def remove(self, ids):
