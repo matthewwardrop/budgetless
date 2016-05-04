@@ -228,6 +228,7 @@ h1 {
 .transaction input.notes {
 	border: 0px;
 	border-bottom: 1px solid transparent;
+	border-radius: 5px;
 	margin: -10px;
 	margin-left: 10px;
 	margin-right: 10px;
@@ -254,4 +255,29 @@ h1 {
 	padding: 5px;
 	border-radius: 3px;
 	margin-bottom: 0px;
+}
+
+span.category {
+	display: block;
+}
+.easy-autocomplete {
+	height: 100%;
+}
+.easy-autocomplete input {
+	border: 0px;
+	border-bottom: 1px solid transparent;
+	margin: -10px;
+	margin-left: 10px;
+	margin-right: 10px;
+	padding: 4px;
+	flex-grow: 1;
+	font-family: inherit;
+	font-size: inherit;
+	font-style: inherit;
+	color: inherit;
+	background: inherit;
+}
+.easy-autocomplete input:hover {
+	border-bottom: 1px solid #aaa;
+	background: rgba(255,246,182,0.4);
 }

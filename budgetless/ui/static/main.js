@@ -103,10 +103,38 @@ function saveNotes(el, id) {
 
 function showDayTransactions(date) {
 	current_day=date;
-	load_panel('#botpane_inner','panel/transactions/'+date, '#botpane');
+	load_panel('#botpane_inner','panel/transactions/'+date, '#botpane', function () {
+		var options = {
+			url: "/ajax/categories",
+			dataType: "json",
+
+			getValue: "name",
+
+			list: {
+				match: {
+					enabled: true
+				}
+			}
+		};
+		$(".category input").easyAutocomplete(options);
+	});
 }
 
 function refresh() {
 	if (typeof current_date !== 'undefined') showWeekChart(current_date);
 	if (typeof current_day !== 'undefined') showDayTransactions(current_day);
+}
+
+
+// Category code
+function saveCategory(el, id) {
+	var category = $(el).val();
+	$.ajax({
+		type: "POST",
+		url: 'ajax/set_transaction_props',
+		data: {'id': id, 'category': category},
+		error: function() {
+			$('#botpane_inner').empty();
+		}
+	});
 }

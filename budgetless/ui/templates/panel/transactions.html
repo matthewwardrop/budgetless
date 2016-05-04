@@ -4,7 +4,7 @@
 <div class='transaction {% if row.pending %}pending{% endif %} {% if not row.onbudget_ref %}offbudget{% endif %}'>
   <span class='amount'>{{ '%.2f' % (row.amount/100) }}</span>
   <span class='description' title="{{ row.description_orig }}">{{ row.description }}</span>
-  <span class='category'>&nbsp;({{ row.category_hint }})</span>
+  <span class='category'><input value='{{ row.category_ref }}' onblur='saveCategory(this, {{row.id}})' /></span>
   <input class='notes' type='text' value='{{row.notes}}' onblur='saveNotes(this, {{row.id}})' />
   <span class='offbudget' onclick='toggleOffBudget(this, {{row.id}})'>Toggle Off Budget</span>
   {% if row.onbudget_nondefault %}<span class='resetoffbudget' onclick='resetOffBudget({{row.id}})'>Reset</span>{% endif %}

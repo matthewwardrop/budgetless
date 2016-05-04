@@ -13,6 +13,7 @@ class Analysis(object):
             end_date = start_date
         df = self.budget.transactions.retrieve_df(start_date, end_date, date_seen=date_seen)
         if len(df) > 0:
+            df['category_ref'] = df['category'].fillna(df['category_hint'])
             df['date_ref'] = np.min([df['date_seen'], df['date']], axis=0)
             df['onbudget_ref'] = self.is_onbudget(df)
         return df
@@ -28,7 +29,7 @@ class Analysis(object):
                             (txns['onbudget'] == 1) |
                             (
                                 txns['onbudget'].isnull() &
-                                ~(txns['category_hint'].str.lower().isin(preallocated) |
+                                ~(txns['category_ref'].str.lower().isin(preallocated) |
                                 txns['description_orig'].str.lower().str.contains('transfer') |
                                 txns['description_orig'].str.lower().str.contains('p2p'))
                             )

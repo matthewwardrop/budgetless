@@ -23,6 +23,8 @@ def transaction_props():
             d['onbudget'] = 0
     if 'notes' in request.form:
         d['notes'] = request.form['notes']
+    if 'category' in request.form:
+        d['category'] = request.form['category']
     current_app.config['budget'].transactions.update_transaction(id, **d)
     return ''
 
@@ -34,6 +36,13 @@ def sync():
     return render_template('panel/sync_status.html',
                            sync_last=get_offset_time(current_app.config['budget'].config.get('sync.last'),  int(request.args.get('tzoffset', 0)))
                            )
+
+@blueprint.route('/ajax/categories')
+def categories():
+    budget = current_app.config['budget']
+    categories = budget.transactions.retrieve_categories()
+
+    return '[' + ','.join(['{"name":"%s"}' % category.replace('"', '\\"') for category in categories if category is not None]) + ']'
 
 def get_offset_time(dt, tzoffset):
     return dt - datetime.timedelta(minutes=tzoffset)

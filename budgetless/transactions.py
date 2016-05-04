@@ -228,6 +228,13 @@ class TransactionPool(object):
     def retrieve_df(self, start_date=None, end_date=None, date_seen=False, provider=None):
         return pandas.DataFrame(list(self.retrieve(start_date, end_date, date_seen, provider)))
 
+    def retrieve_categories(self):
+        with self.engine.begin() as conn:
+            s = select([tbl_txn.c.category]).distinct()
+            s2 = select([tbl_txn.c.category_hint]).distinct()
+            for category in conn.execute(s.union(s2)):
+                yield category[0]
+
     def update_transaction(self, id, **props):
         stmt = update(tbl_txn).where(tbl_txn.c.id==id).values(**props)
         with self.engine.begin() as conn:
