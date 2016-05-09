@@ -67,11 +67,9 @@ class TransactionProvider(object, metaclass=UpdateTransactionProviderRegistry):
             'pending'
         ]
 
-    def compare(self, txn1, txn2):
-        if self.provides_tracking:
-            return txn1['tracking_id'] == txn2['tracking_id']
-
-        compare_keys = [
+    @property
+    def compare_fields(self):
+        return [
             'account',
             'institution',
             'description_orig',
@@ -80,8 +78,13 @@ class TransactionProvider(object, metaclass=UpdateTransactionProviderRegistry):
             'amount',
             'currency'
         ]
+
+    def compare(self, txn1, txn2):
+        if self.provides_tracking:
+            return txn1['tracking_id'] == txn2['tracking_id']
+
         # Returns True if transactions are the same, False otherwise
-        for key in compare_keys:
+        for key in self.compare_fields:
             if not str(txn1[key]) == str(txn2[key]):
                 return False
         return True

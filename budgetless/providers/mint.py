@@ -83,6 +83,18 @@ class MintAPIProvider(TransactionProvider):
         return False
 
     @property
+    def compare_fields(self):
+        # Remove type from compare list, since this can be unstable with mint.
+        return [
+            'account',
+            'institution',
+            'description_orig',
+            'date_orig',
+            'amount',
+            'currency'
+        ]
+
+    @property
     def timezone(self):
         return pytz.timezone('America/Los_Angeles')
 
