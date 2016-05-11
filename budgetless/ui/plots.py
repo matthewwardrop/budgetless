@@ -7,6 +7,7 @@ from ..util import get_date_range, current_datetime
 def plot_spending(budget, start=None, end=None):
     # These are slow to import, so include them here, so that they are
     # only loaded if necessary.
+
     import plotly.graph_objs as go
     import plotly.offline as py
 
@@ -19,7 +20,8 @@ def plot_spending(budget, start=None, end=None):
     pamounts = -df['onbudget_pending']
     daily_amount = df['available']
 
-    drange = get_date_range(start, end)
+    drange = get_date_range(start, end, inclusive=True)
+    dfinerange = get_date_range(start, end, step=datetime.timedelta(hours=1), inclusive=True)
     min_date = min(amounts.index)
     max_date = max(amounts.index)
 
@@ -32,17 +34,10 @@ def plot_spending(budget, start=None, end=None):
 
     series = pd.Series(famounts, index=dates)
     pseries = pd.Series(pamounts, index=dates)
-    if start is not None:
-        series = series[series.index >= start]
-        pseries = pseries[pseries.index >= start]
-    if end is not None:
-        series = series[series.index < end]
-        pseries = pseries[pseries.index < end]
-
 
     pad = [0] * (len(drange) - len(series))
     date_format = lambda ds: [d.strftime('%A') for d in ds]
-
+    print(series.cumsum())
     trend = (series.cumsum() / pd.Series(np.arange(1, len(series)+1), series.index))
     trace1 = go.Bar(
         x=drange,
@@ -62,9 +57,29 @@ def plot_spending(budget, start=None, end=None):
     )
     trace3 = go.Scatter(
         x=trend.index,
-        y=daily_amount[:-(1+date_mask)],
+        y=daily_amount,#[:-(1+date_mask)],
         name='Available Daily Income')
-    data = [trace1, trace15, trace2, trace3]
+
+    yguides = np.linspace(0, max(max(daily_amount), max(series)))
+    print(daily_amount)
+    print (sum(daily_amount))
+    contour_gap = 50
+    guides = go.Contour(
+        x = trend.index,
+        y = yguides,
+        z = np.outer(yguides, np.arange(len(trend.index))+1),
+        autocontour=False,
+        contours=dict(
+            start= - (sum(daily_amount) % contour_gap),
+            end=sum(daily_amount),
+            size=contour_gap,
+            coloring='lines'
+        ),
+        showscale=False,
+        hoverinfo='none'
+    )
+    data = [trace1, trace15, trace2, trace3, guides]
+    #data = [guides]
     layout = go.Layout(
             margin=go.Margin(
                 l=50,

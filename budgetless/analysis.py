@@ -82,10 +82,14 @@ class Analysis(object):
         return self.get_daily_stats(txns, date_seen=date_seen, fill_start=fill_start, fill_end=fill_end).sum()
 
     def daily_stats(self, start_date, end_date=None, date_seen=True):
-        return self.get_daily_stats(self.transactions(start_date, end_date, date_seen), date_seen=True, fill_start=start_date, fill_end=end_date)
+        return self.get_daily_stats(self.transactions(start_date, end_date, date_seen), date_seen=date_seen, fill_start=start_date, fill_end=end_date)
 
     def stats(self, start_date, end_date=None, date_seen=True):
-        return self.get_stats(self.transactions(start_date, end_date, date_seen), date_seen=True, fill_start=start_date, fill_end=end_date)
+        return self.get_stats(self.transactions(start_date, end_date, date_seen), date_seen=date_seen, fill_start=start_date, fill_end=end_date)
+
+    def week_stats(self, start_date, date_seen=True):
+        end_date = start_date + datetime.timedelta(days=6)
+        return self.get_daily_stats(self.transactions(start_date, end_date, date_seen), date_seen=date_seen, fill_start=start_date, fill_end=end_date).sum()
 
     # Week statii
     def yearly_week_dates(self, year, week_start=None):

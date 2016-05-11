@@ -1,0 +1,12 @@
+
+<div style="display: flex; height: 100%;">
+  <div style='flex-grow: 1; height: 100%;'>
+    {{plot|safe}}
+  </div>
+  <div class='progress-vertical'>
+    <div class='box'></div>
+    <div class='label'>{{label|safe}}</div>
+    <div class='bar' style='height: {{ surplus*100 }}%;'>
+    </div>
+  </div>
+</div>
